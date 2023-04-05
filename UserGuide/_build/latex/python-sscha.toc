@@ -1,0 +1,185 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}What is python\sphinxhyphen {}sscha?}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Why do I need python\sphinxhyphen {}sscha?}{1}{section.1.2}%
+\contentsline {chapter}{\numberline {2}How to install}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Requirements}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Installation from pip}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Installation from source}{4}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Install with Intel FORTRAN compiler}{4}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Install with a specific compiler path}{4}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Quick start}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}The free energy of gold: a simulation in the NVT ensemble}{5}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Plot the phonon dispersion}{9}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Analysis of the input script for the NVT simulation}{11}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Exercise}{14}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Running in the NPT ensemble: simulating thermal expansion}{14}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Ab initio calculation with the SSCHA code}{18}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Parallelization}{22}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Remote submission on a queue system}{23}{section.3.8}%
+\contentsline {section}{\numberline {3.9}Other tutorials}{25}{section.3.9}%
+\contentsline {chapter}{\numberline {4}Advanced Features}{27}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Manual submission}{27}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Keep track of free energy, gradients and frequencies during minimization}{29}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Cluster configuration with a code different from Quantum ESPRESSO}{30}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Employ a custom function}{30}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Constraints}{31}{section.4.5}%
+\contentsline {chapter}{\numberline {5}Frequently Asked Questions (FAQs)}{33}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Setup the calculation}{33}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}How do I start a calculation if the Dynamical matrices have imaginary frequencies?}{33}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}What are the reasonable values for the steps?}{34}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}In a NPT or NVT with variable lattice, what is a reasonable value for the bulk modulus?}{34}{subsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.1.4}It is always good to run NVT before any NPT simulation?}{34}{subsection.5.1.4}%
+\contentsline {subsection}{\numberline {5.1.5}How may I run a calculation neglecting symmetries?}{35}{subsection.5.1.5}%
+\contentsline {subsection}{\numberline {5.1.6}In which units are the lattice vectors, the atomic positions, and the mass of the atoms in the dynamical matrix file?}{35}{subsection.5.1.6}%
+\contentsline {subsection}{\numberline {5.1.7}What is the difference between different kinds of minimization (preconditioning and root\_representation)?}{35}{subsection.5.1.7}%
+\contentsline {subsection}{\numberline {5.1.8}How do I fix the random number generator seed to make a calculation reproducible?}{36}{subsection.5.1.8}%
+\contentsline {section}{\numberline {5.2}On error and convergence of the free energy minimization}{36}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}The code stops saying it has found imaginary frequencies, how do I fix it?}{36}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Why the gradient sometimes increases during a minimization?}{36}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}How do I check if my calculations are well converged?}{37}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}What is the final error on the structure or the dynamical matrix of a SCHA minimization?}{37}{subsection.5.2.4}%
+\contentsline {subsection}{\numberline {5.2.5}How do I understand if the free energy hessian calculation is converged?}{37}{subsection.5.2.5}%
+\contentsline {subsection}{\numberline {5.2.6}How do I split the ensemble?}{37}{subsection.5.2.6}%
+\contentsline {subsection}{\numberline {5.2.7}How can I add more configurations to an existing ensemble?}{38}{subsection.5.2.7}%
+\contentsline {subsection}{\numberline {5.2.8}How does the error over the gradients scale with the number of configurations?}{38}{subsection.5.2.8}%
+\contentsline {subsection}{\numberline {5.2.9}I cannot remove the pressure anisotropy after relaxing the cell, what is happening?}{38}{subsection.5.2.9}%
+\contentsline {subsection}{\numberline {5.2.10}How do I choose the appropriate value of Kong\sphinxhyphen {}Liu effective sample size or ratio?}{39}{subsection.5.2.10}%
+\contentsline {section}{\numberline {5.3}Post\sphinxhyphen {}processing the output}{39}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}How do I plot the phonon dispersion after the calculation?}{39}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}How do I plot the frequencies of the dynamical matrix during the optimization?}{39}{subsection.5.3.2}%
+\contentsline {section}{\numberline {5.4}Constrains and custom minimization}{40}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}How do I lock modes from m to n in the minimization?}{40}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}How do I lock a special atom in the minimization?}{40}{subsection.5.4.2}%
+\contentsline {chapter}{\numberline {6}THE API}{43}{chapter.6}%
+\contentsline {section}{\numberline {6.1}The Ensemble Module}{43}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}GET ENERGY AND FORCES}{43}{subsection.6.1.1}%
+\contentsline {subsubsection}{Paramters}{43}{subsubsection*.5}%
+\contentsline {subsection}{\numberline {6.1.2}CONVERT ALL THE VARIABLE IN A COHERENT UNIT OF MEASUREMENTS}{44}{subsection.6.1.2}%
+\contentsline {subsubsection}{Parameters}{44}{subsubsection*.7}%
+\contentsline {subsection}{\numberline {6.1.3}GENERATE THE ENSEMBLE}{44}{subsection.6.1.3}%
+\contentsline {subsubsection}{Parameters}{44}{subsubsection*.9}%
+\contentsline {subsection}{\numberline {6.1.4}GET ENERGY}{45}{subsection.6.1.4}%
+\contentsline {subsubsection}{Parameters}{45}{subsubsection*.11}%
+\contentsline {subsubsection}{Examples}{45}{subsubsection*.12}%
+\contentsline {subsection}{\numberline {6.1.5}GET FORCES}{45}{subsection.6.1.5}%
+\contentsline {subsubsection}{Parameters}{46}{subsubsection*.14}%
+\contentsline {subsection}{\numberline {6.1.6}GET THE AVERAGE STRESS}{46}{subsection.6.1.6}%
+\contentsline {subsection}{\numberline {6.1.7}GET THE COVARIANCE STOCASTICALLY}{46}{subsection.6.1.7}%
+\contentsline {subsubsection}{Results}{46}{subsubsection*.17}%
+\contentsline {subsection}{\numberline {6.1.8}GET ENERGY AND FORCES FOR THE CURRENT ENSEMBLE}{46}{subsection.6.1.8}%
+\contentsline {subsubsection}{Parameters}{47}{subsubsection*.20}%
+\contentsline {subsection}{\numberline {6.1.9}SSCHA FREE ENERGY}{48}{subsection.6.1.9}%
+\contentsline {subsubsection}{Parameters}{48}{subsubsection*.23}%
+\contentsline {subsubsection}{Returns}{48}{subsubsection*.24}%
+\contentsline {subsection}{\numberline {6.1.10}GET THE FREE ENERGY ODD CORRECTION}{48}{subsection.6.1.10}%
+\contentsline {subsubsection}{Parameters}{48}{subsubsection*.26}%
+\contentsline {subsubsection}{Returns}{49}{subsubsection*.27}%
+\contentsline {subsection}{\numberline {6.1.11}GET THE FREE ENERGY IN A BIGGER CELL}{49}{subsection.6.1.11}%
+\contentsline {subsubsection}{Parameters}{49}{subsubsection*.29}%
+\contentsline {subsubsection}{Returns}{50}{subsubsection*.30}%
+\contentsline {subsection}{\numberline {6.1.12}SELF CONSISTENT SCHA EQUATION}{50}{subsection.6.1.12}%
+\contentsline {subsubsection}{Parameters}{50}{subsubsection*.34}%
+\contentsline {subsubsection}{Results}{51}{subsubsection*.35}%
+\contentsline {subsection}{\numberline {6.1.13}GET STRESS TENSOR}{51}{subsection.6.1.13}%
+\contentsline {subsubsection}{Parameters}{51}{subsubsection*.37}%
+\contentsline {subsubsection}{Results}{51}{subsubsection*.38}%
+\contentsline {subsection}{\numberline {6.1.14}Parameters}{52}{subsection.6.1.14}%
+\contentsline {subsection}{\numberline {6.1.15}LOAD THE ENSEMBLE}{52}{subsection.6.1.15}%
+\contentsline {subsubsection}{Parameters}{52}{subsubsection*.41}%
+\contentsline {subsection}{\numberline {6.1.16}LOAD THE BINARY ENSEMBLE}{53}{subsection.6.1.16}%
+\contentsline {subsubsection}{Parameters}{53}{subsubsection*.43}%
+\contentsline {subsection}{\numberline {6.1.17}LOAD THE ENSEMBLE FROM A CALCULATION}{53}{subsection.6.1.17}%
+\contentsline {subsubsection}{Parameters}{53}{subsubsection*.45}%
+\contentsline {subsection}{\numberline {6.1.18}MERGE TWO ENSEMBLES}{53}{subsection.6.1.18}%
+\contentsline {subsubsection}{Parameters}{54}{subsubsection*.47}%
+\contentsline {subsection}{\numberline {6.1.19}SAVE THE ENSEMBLE}{54}{subsection.6.1.19}%
+\contentsline {subsubsection}{Parameters}{54}{subsubsection*.50}%
+\contentsline {subsection}{\numberline {6.1.20}FAST SAVE OF THE ENSEMBLE}{54}{subsection.6.1.20}%
+\contentsline {subsubsection}{Parameters}{55}{subsubsection*.52}%
+\contentsline {subsection}{\numberline {6.1.21}Parameters}{55}{subsection.6.1.21}%
+\contentsline {subsection}{\numberline {6.1.22}SAVE INTO EXTXYZ FORMAT}{55}{subsection.6.1.22}%
+\contentsline {subsubsection}{Parameters}{55}{subsubsection*.55}%
+\contentsline {subsection}{\numberline {6.1.23}Parameters}{56}{subsection.6.1.23}%
+\contentsline {subsection}{\numberline {6.1.24}Returns}{56}{subsection.6.1.24}%
+\contentsline {subsection}{\numberline {6.1.25}SPLIT THE ENSEMBLE}{56}{subsection.6.1.25}%
+\contentsline {subsubsection}{Parameters}{56}{subsubsection*.58}%
+\contentsline {subsubsection}{Results}{56}{subsubsection*.59}%
+\contentsline {subsection}{\numberline {6.1.26}IMPORTANCE SAMPLING}{56}{subsection.6.1.26}%
+\contentsline {subsubsection}{Parameters}{57}{subsubsection*.61}%
+\contentsline {section}{\numberline {6.2}The SchaMinimizer Module}{57}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}CHECK THE STOPPING CONDITION}{57}{subsection.6.2.1}%
+\contentsline {subsubsection}{Result}{57}{subsubsection*.65}%
+\contentsline {subsection}{\numberline {6.2.2}FINALIZE}{58}{subsection.6.2.2}%
+\contentsline {subsubsection}{Parameters}{58}{subsubsection*.67}%
+\contentsline {subsection}{\numberline {6.2.3}SSCHA FREE ENERGY}{58}{subsection.6.2.3}%
+\contentsline {subsubsection}{Returns}{58}{subsubsection*.69}%
+\contentsline {subsection}{\numberline {6.2.4}GET THE STRESS TENSOR}{58}{subsection.6.2.4}%
+\contentsline {subsection}{\numberline {6.2.5}INITIALIZE THE MINIMIZATION}{59}{subsection.6.2.5}%
+\contentsline {subsubsection}{Parameters}{59}{subsubsection*.72}%
+\contentsline {subsection}{\numberline {6.2.6}Result}{59}{subsection.6.2.6}%
+\contentsline {subsection}{\numberline {6.2.7}Parameters}{59}{subsection.6.2.7}%
+\contentsline {subsection}{\numberline {6.2.8}PLOT RESULTS}{59}{subsection.6.2.8}%
+\contentsline {subsubsection}{Parameters}{60}{subsubsection*.76}%
+\contentsline {subsection}{\numberline {6.2.9}PRINT SETTINGS ON OUTPUT}{60}{subsection.6.2.9}%
+\contentsline {subsection}{\numberline {6.2.10}RUN THE SSCHA MINIMIZATION}{60}{subsection.6.2.10}%
+\contentsline {subsubsection}{Parameters}{60}{subsubsection*.79}%
+\contentsline {subsection}{\numberline {6.2.11}SETUP THE MINIMIZATION}{61}{subsection.6.2.11}%
+\contentsline {subsubsection}{Parameters}{61}{subsubsection*.83}%
+\contentsline {subsection}{\numberline {6.2.12}UPDATE IMPORTANCE SAMPLING}{61}{subsection.6.2.12}%
+\contentsline {section}{\numberline {6.3}The Relax Module}{62}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}COSTANT VOLUME RELAX}{62}{subsection.6.3.1}%
+\contentsline {subsubsection}{Parameters}{62}{subsubsection*.87}%
+\contentsline {subsubsection}{Returns}{63}{subsubsection*.88}%
+\contentsline {subsection}{\numberline {6.3.2}SETUP THE RELAXER FROM THE NAMELIST}{63}{subsection.6.3.2}%
+\contentsline {subsubsection}{Parameters}{63}{subsubsection*.91}%
+\contentsline {subsection}{\numberline {6.3.3}VARIABLE CELL RELAX}{63}{subsection.6.3.3}%
+\contentsline {subsubsection}{Parameters}{64}{subsubsection*.93}%
+\contentsline {subsubsection}{Returns}{65}{subsubsection*.94}%
+\contentsline {section}{\numberline {6.4}The Utilities Module}{65}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}IOInfo class}{65}{subsection.6.4.1}%
+\contentsline {subsubsection}{Parameters}{65}{subsubsection*.100}%
+\contentsline {subsubsection}{Parameters}{66}{subsubsection*.103}%
+\contentsline {subsubsection}{Parameters}{66}{subsubsection*.105}%
+\contentsline {subsection}{\numberline {6.4.2}Constraints}{66}{subsection.6.4.2}%
+\contentsline {subsubsection}{PROJECT ONLY THE FC GRADIENT IN THE SELECTED MODES}{66}{subsubsection*.108}%
+\contentsline {subsubsection}{PROJECT THE GRADIENT IN THE SELECTED MODES}{66}{subsubsection*.110}%
+\contentsline {subsubsection}{PROJECT ONLY THE STRUCTURE GRADIENT IN THE SELECTED MODES}{66}{subsubsection*.112}%
+\contentsline {subsubsection}{SETUP FREE (or constrained) MODES}{67}{subsubsection*.114}%
+\contentsline {paragraph}{Parameters}{67}{paragraph*.115}%
+\contentsline {section}{\numberline {6.5}The Cluster Module}{67}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}CHECK IF THE SERVER IS AVAILABLE}{67}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}EXECUTE THE CMD ON THE CLUSTER}{68}{subsection.6.5.2}%
+\contentsline {subsubsection}{Parameters}{68}{subsubsection*.119}%
+\contentsline {subsubsection}{Returns}{68}{subsubsection*.120}%
+\contentsline {subsection}{\numberline {6.5.3}BATCH SUBMISSION}{68}{subsection.6.5.3}%
+\contentsline {subsubsection}{Parameters}{68}{subsubsection*.122}%
+\contentsline {subsubsection}{Results}{69}{subsubsection*.123}%
+\contentsline {subsection}{\numberline {6.5.4}Parameters}{69}{subsection.6.5.4}%
+\contentsline {subsection}{\numberline {6.5.5}CLEAN THE LOCAL WORKDIR FROM ALL INPUT/OUTPUT FILES IN TAR}{69}{subsection.6.5.5}%
+\contentsline {subsection}{\numberline {6.5.6}RUN THE WHOLE ENSEMBLE ON THE CLUSTER}{69}{subsection.6.5.6}%
+\contentsline {subsubsection}{Parameters}{69}{subsubsection*.128}%
+\contentsline {subsection}{\numberline {6.5.7}RUN THE ENSEMBLE WITH BATCH SUBMISSION}{70}{subsection.6.5.7}%
+\contentsline {subsection}{\numberline {6.5.8}COPY INPUT/OUTPUT FILES FROM/TO THE SERVER}{70}{subsection.6.5.8}%
+\contentsline {subsubsection}{Parameters}{70}{subsubsection*.131}%
+\contentsline {subsection}{\numberline {6.5.9}CREATE THE SUBMISSION SCRIPT}{70}{subsection.6.5.9}%
+\contentsline {subsubsection}{Parameters}{70}{subsubsection*.133}%
+\contentsline {subsubsection}{Returns}{70}{subsubsection*.134}%
+\contentsline {subsection}{\numberline {6.5.10}GET THE EXECUTION COMMAND}{71}{subsection.6.5.10}%
+\contentsline {subsubsection}{Parameters}{71}{subsubsection*.136}%
+\contentsline {subsubsection}{Returns}{71}{subsubsection*.137}%
+\contentsline {subsection}{\numberline {6.5.11}PARSE STRING}{71}{subsection.6.5.11}%
+\contentsline {subsubsection}{Parameter}{71}{subsubsection*.141}%
+\contentsline {subsubsection}{Result}{72}{subsubsection*.142}%
+\contentsline {subsection}{\numberline {6.5.12}PREPARE THE INPUT FILE}{72}{subsection.6.5.12}%
+\contentsline {subsubsection}{Parameters}{72}{subsubsection*.144}%
+\contentsline {subsubsection}{Returns}{72}{subsubsection*.145}%
+\contentsline {subsection}{\numberline {6.5.13}RUN ATOMS ON THE CLUSTER}{72}{subsection.6.5.13}%
+\contentsline {subsection}{\numberline {6.5.14}Parameters}{73}{subsection.6.5.14}%
+\contentsline {subsection}{\numberline {6.5.15}SETUP THE CLUSTER WITH AN INPUTFILE}{73}{subsection.6.5.15}%
+\contentsline {subsubsection}{Parameters}{73}{subsubsection*.150}%
+\contentsline {subsection}{\numberline {6.5.16}SETUP THE WORKING DIRECTORY}{73}{subsection.6.5.16}%
+\contentsline {subsection}{\numberline {6.5.17}SUBMIT THE CALCULATION}{73}{subsection.6.5.17}%
+\contentsline {subsubsection}{Parameters}{73}{subsubsection*.153}%
+\contentsline {subsubsection}{Results}{74}{subsubsection*.154}%
+\contentsline {chapter}{\numberline {7}Indices and tables}{75}{chapter.7}%
