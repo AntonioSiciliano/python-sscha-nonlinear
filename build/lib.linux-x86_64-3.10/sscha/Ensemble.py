@@ -1070,15 +1070,15 @@ Error, the following stress files are missing from the ensemble:
         # Here it is useless to generate the supercell dynamical matrix,
         # it should be replaced by generating the unit cell structure,
         # But then the get_energy_forces method should provide the correct implementation.
-        new_super_dyn = self.current_dyn.GenerateSupercellDyn(self.current_dyn.GetSupercell())
         if auxiliary_disps is None:
+            print('Init from structs without auxiliary displacements')
+            new_super_dyn = self.current_dyn.GenerateSupercellDyn(self.current_dyn.GetSupercell())
             self.u_disps[:,:] = np.reshape(self.xats - np.tile(new_super_dyn.structure.coords, (self.N, 1,1)), (self.N, 3 * Nat_sc), order = "C")
         else:
-            print('Initializing the ensemble from auxiliary displacements')
+            print('Init from structs with auxiliary displacements')
             self.u_disps[:,:] = auxiliary_disps[:,:]
 
         self.sscha_energies[:], self.sscha_forces[:,:,:] = self.dyn_0.get_energy_forces(None, displacement = self.u_disps)
-
 
         self.rho = np.ones(self.N, dtype = np.float64)
         self.current_dyn = self.dyn_0.Copy()
@@ -1119,7 +1119,7 @@ Error, the following stress files are missing from the ensemble:
                 Set the scatter parameter to displace the Sobol positions randommly.
 
         """
-
+        evenodd = False
         if evenodd and (N % 2 != 0):
             raise ValueError("Error, evenodd allowed only with an even number of random structures")
 
@@ -1131,7 +1131,8 @@ Error, the following stress files are missing from the ensemble:
 
         structures = []
         if evenodd:
-            structs = self.dyn_0.ExtractRandomStructures(N // 2, self.T0, project_on_vectors = project_on_modes, lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
+            structs = self.dyn_0.ExtractRandomStructures(N // 2, self.T0, project_on_vectors = project_on_modes,\
+                                                         lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
 
 
 
@@ -1142,7 +1143,8 @@ Error, the following stress files are missing from the ensemble:
                 new_s.coords = super_struct.coords - new_s.get_displacement(super_struct)
                 structures.append(new_s)
         else:
-            structures = self.dyn_0.ExtractRandomStructures(N, self.T0, project_on_vectors = project_on_modes, lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
+            structures = self.dyn_0.ExtractRandomStructures(N, self.T0, project_on_vectors = project_on_modes,\
+                                                            lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
 
 
         # Enforce all the processors to share the same structures
@@ -3056,6 +3058,7 @@ DETAILS OF ERROR:
             self.merge(computing_ensemble)
         
         print('ENSEMBLE ALL PROPERTIES:', self.all_properties)
+        print('\nEnd compute ensemble')
 
     def merge(self, other):
         """
@@ -3171,7 +3174,6 @@ DETAILS OF ERROR:
         self.structures = [self.structures[x] for x in np.arange(len(good_mask))[good_mask]]
         self.all_properties = [self.all_properties[x] for x in np.arange(len(good_mask))[good_mask]]
 
-
         self.rho = self.rho[good_mask]
 
         # Check everything and update the weights
@@ -3184,9 +3186,8 @@ DETAILS OF ERROR:
         This may be used to resubmit only the non computed values.
         
         Note: this function has been modified to use it in nonlinearscha
-        as the u_disps are directly taken from the ensemble and not recomputed as in the standard scha
+        as the u_disps are taken directly from the ensemble and not recomputed as in the standard scha
         """
-
         non_mask = ~self.force_computed
         if self.has_stress:
             non_mask = non_mask & (~self.stress_computed)
@@ -3235,7 +3236,6 @@ DETAILS OF ERROR:
                 nat3 = comm.bcast(self.current_dyn.structure.N_atoms* 3* np.prod(self.supercell), root = 0)
                 N_rand = comm.bcast(self.N, root=0)
 
-
                 #if not Parallel.am_i_the_master():
                 #    self.structures = structures
                 #    self.init_from_structures(structures) # Enforce all the ensembles to have the same structures
@@ -3245,7 +3245,6 @@ DETAILS OF ERROR:
                 ase_calculator.set_label("esp_%d" % rank) # Avoid overwriting the same file
 
                 compute_stress = comm.bcast(compute_stress, root = 0)
-
 
                 # Check if the parallelization is correct
                 if N_rand % size != 0:
@@ -3262,7 +3261,6 @@ DETAILS OF ERROR:
 
         # Prepare the energy, forces and stress array
         # TODO: Correctly setup the number of energies here
-
 
         # If an MPI istance is running, split the calculation
         tot_configs = N_rand // size
@@ -3301,13 +3299,11 @@ DETAILS OF ERROR:
                     else:
                         continue
 
-
             struct = structures[i]
             #atms = struct.get_ase_atoms()
 
             # Setup the ASE calculator
             #atms.set_calculator(ase_calculator)
-
 
             # Print the status
             if Parallel.am_i_the_master() and verbose:
@@ -3321,7 +3317,7 @@ DETAILS OF ERROR:
                 try:
                     results = CC.calculators.get_results(ase_calculator, struct, get_stress = compute_stress)
                     energy = results["energy"] / Rydberg # eV => Ry
-                    forces_ = results["forces"] / Rydberg
+                    forces_ = results["forces"] / Rydberg # eV/Angstrom => Ry/Angstrom
 
                     if compute_stress:
                         stress[9*i0 : 9*i0 + 9] = -results["stress"].reshape(9)* Bohr**3 / Rydberg
@@ -3351,9 +3347,6 @@ DETAILS OF ERROR:
 
 
             i0 += 1
-
-
-
 
 
         # Collect all togheter
