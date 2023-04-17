@@ -136,10 +136,10 @@ class Ensemble:
         self.stresses = []
         self.xats = []
         self.units = UNITS_DEFAULT
-        self.w_0 = None
-        self.pols_0 = None
-        self.current_w = None
-        self.current_pols = None
+        # self.w_0 = None
+        # self.pols_0 = None
+        # self.current_w = None
+        # self.current_pols = None
 
         self.sscha_energies = []
         self.sscha_forces = []
@@ -1718,8 +1718,10 @@ DETAILS OF ERROR:
             float
                 The free energy in the current dynamical matrix and at the ensemble temperature
         """
-
-        free_energy = self.current_dyn.GetHarmonicFreeEnergy(self.current_T, w_pols = (self.current_w, self.current_pols))
+        # Get the HARMONIC free energy
+        free_energy = 0.
+        # free_energy = self.current_dyn.GetHarmonicFreeEnergy(self.current_T, w_pols = (self.current_w, self.current_pols))
+        free_energy = self.current_dyn.GetHarmonicFreeEnergy(self.current_T, w_pols = None)
 
         # We got the F_0
         # Now we can compute the free energy difference
@@ -1730,8 +1732,8 @@ DETAILS OF ERROR:
         else:
             anharmonic_free_energy = self.get_average_energy(subtract_sscha = True, return_error = False)
 
-        #print "Free energy harmonic:", free_energy
-        #print "Free energy anharmonic:", anharmonic_free_energy
+        print("Non-linear-sscha F_0   (meV): {}".format(free_energy * CC.Units.RY_TO_EV * 1000))
+        print("Non-linear-sscha <V-V_scha> (meV): {}".format(anharmonic_free_energy * CC.Units.RY_TO_EV * 1000))
         free_energy += anharmonic_free_energy
 
         if return_error:
