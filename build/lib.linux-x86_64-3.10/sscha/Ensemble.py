@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import cellconstructor as CC
 import cellconstructor.Structure
 import cellconstructor.Phonons
+import cellconstructor.Units
 import cellconstructor.Methods
 import cellconstructor.Manipulate
 import cellconstructor.Settings
@@ -1732,8 +1733,8 @@ DETAILS OF ERROR:
         else:
             anharmonic_free_energy = self.get_average_energy(subtract_sscha = True, return_error = False)
 
-        print("Non-linear-sscha F_0   (meV): {}".format(free_energy * CC.Units.RY_TO_EV * 1000))
-        print("Non-linear-sscha <V-V_scha> (meV): {}".format(anharmonic_free_energy * CC.Units.RY_TO_EV * 1000))
+        print("Non-linear-sscha F_0 (meV) {}".format(free_energy * CC.Units.RY_TO_EV * 1000))
+        print("Non-linear-sscha <V-V_scha> (meV) {}".format(anharmonic_free_energy * CC.Units.RY_TO_EV * 1000))
         free_energy += anharmonic_free_energy
 
         if return_error:
