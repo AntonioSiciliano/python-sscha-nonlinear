@@ -114,7 +114,8 @@ Exit failure!
         fig_data.tight_layout()
     
 
-
+    plt.savefig('./minim.png')
+    plt.show()
 
     if plot_frequencies:
         print("Plotting the frequencies")
@@ -134,7 +135,7 @@ Exit failure!
         ax.set_ylabel("Frequency [cm-1]", fontsize = LBL_FS)
         ax.set_title("Frequcency evolution", fontsize = TITLE_FS)
         fig_freqs.tight_layout()
-
+    plt.savefig('./freqs.png')
     plt.show()
     
 if __name__ == "__main__":
