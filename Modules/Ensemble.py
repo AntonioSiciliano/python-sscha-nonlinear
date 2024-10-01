@@ -194,16 +194,16 @@ class Ensemble:
         # Get the extra quantities
         self.all_properties = []
 
-#         # COMMENTED TO BE COMPATIBLE WITH NONLINEAR SCHA
-#         # Setup the attribute control
-#         self.__total_attributes__ = [item for item in self.__dict__.keys()]
-#         # This must be the last attribute to be setted
-#         self.fixed_attributes = True 
+        # COMMENTED TO BE COMPATIBLE WITH NONLINEAR SCHA
+        # Setup the attribute control
+        self.__total_attributes__ = [item for item in self.__dict__.keys()]
+        # This must be the last attribute to be setted
+        self.fixed_attributes = True 
 
 
-#         # Setup any other keyword given in input (raising the error if not already defined)
-#         for key in kwargs:
-#             self.__setattr__(key, kwargs[key])
+        # Setup any other keyword given in input (raising the error if not already defined)
+        for key in kwargs:
+            self.__setattr__(key, kwargs[key])
 
 
     def __setattr__(self, name, value):
@@ -1733,8 +1733,8 @@ DETAILS OF ERROR:
         else:
             anharmonic_free_energy = self.get_average_energy(subtract_sscha = True, return_error = False)
 
-        print("Non-linear-sscha F_0 (meV) {}".format(free_energy * CC.Units.RY_TO_EV * 1000))
-        print("Non-linear-sscha <V-V_scha> (meV) {}".format(anharmonic_free_energy * CC.Units.RY_TO_EV * 1000))
+        print("scha F_0 (meV) {}".format(free_energy * CC.Units.RY_TO_EV * 1000))
+        print("scha <V-V_scha> (meV) {}".format(anharmonic_free_energy * CC.Units.RY_TO_EV * 1000))
         free_energy += anharmonic_free_energy
 
         if return_error:
@@ -1891,6 +1891,74 @@ DETAILS OF ERROR:
             return new_phi, delta_new_phi
 
         return new_phi
+    
+    
+    
+    def get_custom_gradient(self):
+        """
+        CUSTOM IMPLEMENTATION of the gradient
+        """
+        super_struct = self.current_dyn.structure.generate_supercell(self.supercell)
+        nat_sc = super_struct.N_atoms
+        mass = super_struct.get_masses_array()
+        M = np.tile(mass, (3,1)).T.ravel()
+            
+        # Get < u (dV/dR - dVscha/dR) > RYDBERG
+        u_dV_dR = np.einsum('i, ia, ib -> ab', self.rho, self.u_disps, -(self.forces - self.sscha_forces).reshape(self.N, nat_sc * 3))
+        
+        # This is in 1/BOHR^2
+        Y = self.current_dyn.GetUpsilonMatrix(self.T0)
+        
+        # Y * = __A_TO_BOHR__**2
+            
+        # Get sum_k Y_ik < u_k (dV_dR)_j> RYDBERG /BOHR^2
+        Y_u_dV_dR = 0.5 * np.einsum('ik, kj -> ij', Y, u_dV_dR)
+        
+        # Y_u_dV_dR
+    
+        # Dyagonalize
+        w, pols = self.current_dyn.DiagonalizeSupercell()
+        trans = np.abs(w) < CC.Phonons.__EPSILON_W__
+        
+        
+        f_mu_nu = np.zeros((len(w), len(w)))
+                           
+        def my_f(w1, w2):
+            if np.abs(w1 - w2) < CC.Phonons.__EPSILON_W__:
+                dYinv_dw2 = - 1/(4 * w1 **3)
+                return dYinv_dw2 
+            else:
+                Yinv1 = 1/(2 * w1)
+                Yinv2 = 1/(2 * w2)
+                return (Yinv1 - Yinv2)/(w1**2 - w2**2)
+            
+        for mu in range(len(w)):
+            if trans[mu]:
+                pass
+            else:
+                for nu in range(len(w)):
+                    if trans[nu]:
+                        pass
+                    else:
+                        f_mu_nu[mu,nu] = my_f(w[mu], w[nu])
+        
+        # Lambda is in 1/RYDBERG^3
+        Lambda = np.einsum('mn, am, bn, cm, dn -> abcd', f_mu_nu, pols, pols, pols, pols) 
+        
+        Lambda += np.einsum('abcd -> bacd', Lambda)
+
+        Lambda += np.einsum('abcd -> abdc', Lambda)
+
+        Lambda /=4
+        
+        # Get dYinv dPhi 1/RYDBERG^3 (BOHR^4 RYDBERG^2) = BOHR^4/RYDBERG
+        dYinv_dPhi = np.einsum('abcd, a, b, c, d -> abcd', Lambda, 1/np.sqrt(M), 1/np.sqrt(M), 1/np.sqrt(M), 1/np.sqrt(M))
+        
+        # The gradient is  BOHR^4/RYDBERG (RYDBERG /BOHR^2) = BOHR^2
+        grad = np.einsum('ijab, ij -> ab', dYinv_dPhi, Y_u_dV_dR)
+        
+        return (grad + grad.T)/2
+        
 
     def get_preconditioned_gradient(self, subtract_sscha = True, return_error = False,
                                     use_ups_supercell = True, preconditioned = 1,
@@ -1955,7 +2023,8 @@ DETAILS OF ERROR:
         ityp = super_struct.get_ityp() + 1 # Py to fortran convertion
         mass = np.array(list(super_struct.masses.values()))
         
-        log_err = "err_yesrho"
+        #log_err = "err_yesrho"
+        log_err = "err_nonrho"
 
         mass *= 2
         w /= 2
@@ -1982,15 +2051,24 @@ DETAILS OF ERROR:
 
         t1 = time.time()
         if fast_grad or not preconditioned:
+            print('COMPUTING THE STANDARD GRADIENT')
             grad, grad_err = SCHAModules.get_gradient_supercell(self.rho, u_disp, eforces, w, pols, trans,
                                                                 self.current_T, mass, ityp, log_err, self.N,
                                                                 nat, 3*nat, len(mass), preconditioned)
         else:
+            print('COMPUTING THE PRECONDITIONED GRADIENT')
             grad, grad_err = SCHAModules.get_gradient_supercell_new(self.rho, u_disp, eforces, w, pols, trans,
                                                                      self.current_T, mass, ityp, log_err, self.N,
                                                                      nat, 3*nat, len(mass))
-
-
+            
+            
+        # my_grad = self.get_custom_gradient()
+        # print('MINE')
+        # print(my_grad[0,0])
+        # print('ORIGINAL')
+        # print(grad[0,0])
+        
+      
         t2 = time.time()
         if verbose:
             print (" [GRADIENT] Time to call the fortran code:", t2 - t1, "s")

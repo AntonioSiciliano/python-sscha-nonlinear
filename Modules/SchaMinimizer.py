@@ -140,7 +140,9 @@ class SSCHA_Minimizer(object):
 
         self.ensemble = ensemble
         self.root_representation = root_representation
-
+        
+        # If cavity calculation
+        self.cavity = False
 
         # The symmetries
         self.symmetries = None
@@ -304,33 +306,38 @@ class SSCHA_Minimizer(object):
                 It takes as input the two gradient (the dynamical matrix one and the structure one), and
                 modifies them (or does some I/O on it).
         """
+        if not self.cavity:
+            # Setup the symmetries
+            qe_sym = CC.symmetries.QE_Symmetry(self.dyn.structure)
 
-        # Setup the symmetries
-        qe_sym = CC.symmetries.QE_Symmetry(self.dyn.structure)
-
-        if self.use_spglib:
-            qe_sym.SetupFromSPGLIB()
-            self.N_symmetries = qe_sym.QE_nsym
+            if self.use_spglib:
+                qe_sym.SetupFromSPGLIB()
+                self.N_symmetries = qe_sym.QE_nsym
+            else:
+                qe_sym.SetupQPoint(verbose = False)
+                self.N_symmetries = qe_sym.QE_nsym
         else:
-            qe_sym.SetupQPoint(verbose = False)
-            self.N_symmetries = qe_sym.QE_nsym
+            # TODO implement symmetries with CAVITY
+            pass
 
 
-
+        # print('Minim cav', self.cavity)
+        # print('Minim prec', self.precond_dyn)
         # Get the gradient of the free-energy respect to the dynamical matrix
         #dyn_grad, err = self.ensemble.get_free_energy_gradient_respect_to_dyn()
         #dyn_grad, err = self.ensemble.get_fc_from_self_consistency(True, True)
         #dyn_grad, err = self.ensemble.get_fc_from_self_consistency(True, True)
         if self.minim_dyn:
             if self.precond_dyn:
+                if self.cavity:
+                    raise ValueError('The preconditioning on FC must be turned off for a cavity calculation')
                 dyn_grad, err = self.ensemble.get_preconditioned_gradient(True, True, preconditioned=1)
             else:
                 dyn_grad, err = self.ensemble.get_preconditioned_gradient(True, True, preconditioned=0)
         else:
             dyn_grad = np.zeros( (len(self.dyn.q_tot), 3 * self.dyn.structure.N_atoms, 3 * self.dyn.structure.N_atoms), dtype = np.complex128)
             err = np.zeros_like(dyn_grad)
-
-
+            
         # Perform the symmetrization
 #        qe_sym.ImposeSumRule(dyn_grad)
 #        qe_sym.SymmetrizeDynQ(dyn_grad, np.array([0,0,0]))
@@ -386,7 +393,11 @@ class SSCHA_Minimizer(object):
                 # Just divide the error by the square root the number of symmetries
                 err /= np.sqrt(qe_sym.QE_nsym * np.prod(self.ensemble.supercell))
             else:
-                CC.symmetries.CustomASR(dyn_grad[0, :,:])
+                if not self.cavity:
+                    CC.symmetries.CustomASR(dyn_grad[0, :,:])
+                else:
+                    # TODO FIX THE SIMPLE ASR with CAVITY
+                    pass
         t2 = time.time()
         print ("Time elapsed to symmetrize the gradient:", t2 - t1, "s")
 
@@ -426,10 +437,11 @@ class SSCHA_Minimizer(object):
             struct_grad, struct_grad_err =  self.ensemble.get_average_forces(True)
             #print "SHAPE:", np.shape(struct_grad)
             struct_grad_reshaped = - struct_grad.reshape( (3 * self.dyn.structure.N_atoms))
-
-
+            
             # Preconditionate the gradient for the wyckoff minimization
             if self.precond_wyck:
+                if self.cavity:
+                    raise ValueError('Turn off the wyck preconditioning with a cavity calculation')
                 w_pols = None
                 if len(self.dyn.q_tot) == 1:
                     w_pols = (self.ensemble.current_w, self.ensemble.current_pols)
@@ -437,6 +449,7 @@ class SSCHA_Minimizer(object):
                 struct_grad_precond = struct_precond.dot(struct_grad_reshaped)
                 struct_grad = struct_grad_precond.reshape( (self.dyn.structure.N_atoms, 3))
             t2 = time.time()
+            
 
             print ("Time elapsed to compute the structure gradient:", t2 - t1, "s")
 
@@ -496,7 +509,11 @@ Error, the custom_function_gradient must have either 2 or 3 arguments:
         # Append the gradient modulus to the minimization info
         if self.minim_struct:
             self.__gw__.append(np.sqrt( np.sum(struct_grad**2)))
-            self.__gw_err__.append(np.sqrt( np.einsum("ij, ij", struct_grad_err, struct_grad_err) / qe_sym.QE_nsymq))
+            if not self.cavity:
+                self.__gw_err__.append(np.sqrt( np.einsum("ij, ij", struct_grad_err, struct_grad_err) / qe_sym.QE_nsymq))
+            else:
+                # TODO FIX THE ERROR FOR THE CAVITY
+                self.__gw_err__.append(np.sqrt( np.einsum("ij, ij", struct_grad_err, struct_grad_err)))
         else:
             self.__gw__.append(0)
             self.__gw_err__.append(0)
@@ -517,8 +534,6 @@ Error, the custom_function_gradient must have either 2 or 3 arguments:
             is_diag_ok = True
             self.minimizer.update_dyn(new_kl_ratio, dyn_grad, struct_grad)
 
-
-
             # Get the new dynamical matrix and strucure after the step
             new_dyn, new_struct = self.minimizer.get_dyn_struct()
 
@@ -531,15 +546,15 @@ Error, the custom_function_gradient must have either 2 or 3 arguments:
             for iq in range(len(self.dyn.q_tot)):
                 self.dyn.dynmats[iq] = new_dyn[iq, : ,: ]
 
-
             # Update the structure
             if self.minim_struct:
                 self.dyn.structure.coords[:,:] = new_struct
 
             # Check if we must enforce the symmetries and the sum rule:
             if self.enforce_sum_rule and (not self.neglect_symmetries):
+                if self.cavity:
+                    raise ValueError('No symmetries implemented yet for a cavity calculation')
                 self.dyn.Symmetrize(use_spglib = self.use_spglib)
-
 
             # If we have imaginary frequencies, force the kl ratio to zero
 
@@ -830,14 +845,16 @@ Error, exceeded the maximum number of step with an imaginary frequency ({}).
         print (" (Kong-Liu ratio = ", self.kong_liu_ratio, ")")
         print (" compute the stress tensor = ", self.ensemble.has_stress)
         print (" total number of atoms = ", self.dyn.structure.N_atoms * np.prod(self.ensemble.supercell))
+        print (" cavity = ", self.cavity)
         print ()
         print ("")
-        print("--- SYMMETRY INFO ----")
-        print (" use spglib = ", self.use_spglib)
-        if self.use_spglib:
-            import spglib
-            print (" Symmetry group = {}".format(spglib.get_spacegroup(self.dyn.structure.get_ase_atoms())))
-        print (" Number of symmetries in the unit cell = ", self.N_symmetries)
+        if not self.cavity:
+            print("--- SYMMETRY INFO ----")
+            print (" use spglib = ", self.use_spglib)
+            if self.use_spglib:
+                import spglib
+                print (" Symmetry group = {}".format(spglib.get_spacegroup(self.dyn.structure.get_ase_atoms())))
+            print (" Number of symmetries in the unit cell = ", self.N_symmetries)
 
         print ()
         print (" --- STRUCT MINIMIZATION --- ")
@@ -986,9 +1003,13 @@ Maybe data_dir is missing from your input?"""
             # Save the number of symmetries
             self.N_symmetries = qe_sym.QE_nsym
         else:
-            # Only apply the acoustic sum rule
-            CC.symmetries.CustomASR(self.dyn.dynmats[0])
-            self.N_symmetries = 1
+            if not self.cavity:
+                # Only apply the acoustic sum rule
+                CC.symmetries.CustomASR(self.dyn.dynmats[0])
+                self.N_symmetries = 1
+            else:
+                # TODO Apply the ASR on the cavity dyn
+                pass
 
         if verbosity:
             print("Total number of symmetries: {}".format(self.N_symmetries))
@@ -1134,7 +1155,7 @@ WARNING, the preconditioning is activated together with a root representation.
         if not self.minim_struct:
             self.gradi_op = "gc"
 
-        # Prepare the minimizer
+        # Prepare the minimizer (this does the line minimization with SD algorithm)
         self.minimizer = sscha.Minimizer.Minimizer(self.minim_struct, fixed_step= self.fixed_step, root_representation = self.root_representation, verbose = verbose >= 1)
         self.minimizer.init(self.dyn, self.ensemble.get_effective_sample_size() / self.ensemble.N)
 
@@ -1142,8 +1163,6 @@ WARNING, the preconditioning is activated together with a root representation.
         self.minimizer.step = self.min_step_dyn
         if self.minim_struct:
             self.minimizer.struct_step_ratio = self.min_step_struc / self.min_step_dyn
-
-
 
         while running:
             # Invoke the custom fuction if any
@@ -1192,7 +1211,11 @@ WARNING, the preconditioning is activated together with a root representation.
                 print("Number of symmetries before the step: ", self.N_symmetries)
                 if self.use_spglib:
                     import spglib
-                    print("Group space: ", spglib.get_spacegroup(self.dyn.structure.get_ase_atoms()))
+                    if not self.cavity:
+                        print("Group space: ", spglib.get_spacegroup(self.dyn.structure.get_ase_atoms()))
+                    else:
+                        # TODO FIX in the case of CAVITY
+                        print("Cavity calculation")
                 print ("Harmonic contribution to free energy = %16.8f meV" % (harm_fe * __RyTomev__))
                 print ("Anharmonic contribution to free energy = %16.8f +- %16.8f meV" % (anharm_fe * __RyTomev__,
                                                                                          np.real(err) * __RyTomev__))

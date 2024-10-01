@@ -102,6 +102,7 @@ subroutine get_gradient_supercell( n_random, natsc, n_modes, ntyp_sc, rho, u_dis
   if (print_input) then
      print *, "GET_GRADIENT_SUPERCELL INPUT VALUES:"
      print *, "NRAND:", n_random
+     print *, "PRECOND:", precond
      print *, "NAT_SC:", natsc
      print *, "N_MODES:", n_modes
      print *, "NTYP_SC:", ntyp_sc
@@ -141,13 +142,13 @@ subroutine get_gradient_supercell( n_random, natsc, n_modes, ntyp_sc, rho, u_dis
   uf_mat = 0.0d0
   err_uf_mat = 0.0d0
 
-  ! print *, "DISP FORCES:"
-  ! do i = 1, size(u_disp(:, 1,1))
-  !    print *, "CONFIG", i, "RHO:", rho(i)
-  !    do j = 1, natsc(
-  !       print *, "U:", u_disp(i,j,:), "F:", eforces(i,j,:)
-  !    end do
-  ! end do
+  !print *, "DISP FORCES:"
+  !do i = 1, size(u_disp(:, 1,1))
+  !   print *, "CONFIG", i, "RHO:", rho(i)
+  !   do j = 1, natsc(
+  !      print *, "U:", u_disp(i,j,:), "F:", eforces(i,j,:)
+  !   end do
+  !end do
   
   
   call cpu_time(t1)
@@ -207,6 +208,14 @@ subroutine get_gradient_supercell( n_random, natsc, n_modes, ntyp_sc, rho, u_dis
      end do
      print *, ""
   end if
+
+  
+  !! Print the gradient
+  !print *, "======= GRADIENT ERR uf======="
+  !do ical = 1, 3*natsc
+  !   print "(1000E16.5)", err_uf_mat(:, ical)
+  !end do
+  !call flush()
      
   call cpu_time(t1)
   call dgemm("N", "N", 3*natsc, 3*natsc, 3*natsc, 1.0d0, ups_mat, 3*natsc,  uf_mat, 3*natsc, 0.0d0, grad, 3*natsc)
@@ -223,12 +232,19 @@ subroutine get_gradient_supercell( n_random, natsc, n_modes, ntyp_sc, rho, u_dis
      end do
   end do
 
-  ! ! Print the gradient
-  ! print *, "======= GRADIENT NOW ======="
-  ! do ical = 1, 3*natsc
-  !    print "(1000E16.5)", grad(:, ical)
-  ! end do
-  ! call flush()
+  !! Print the gradient
+  !print *, "======= GRADIENT NOW ======="
+  !do ical = 1, 3*natsc
+  !   print "(1000E16.5)", grad(:, ical)
+  !end do
+  !call flush()
+  
+  !! Print the gradient
+  !print *, "======= GRADIENT ERR NOW ======="
+  !do ical = 1, 3*natsc
+  !   print "(1000E16.5)", grad_err(:, ical)
+  !end do
+  !call flush()
   
   ! Perform the inverse preconditioning if required:
   if (.not. precond) then
