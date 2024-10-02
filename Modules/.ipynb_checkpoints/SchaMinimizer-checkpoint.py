@@ -394,6 +394,7 @@ class SSCHA_Minimizer(object):
                 err /= np.sqrt(qe_sym.QE_nsym * np.prod(self.ensemble.supercell))
             else:
                 if not self.cavity:
+                    # Use just the ASR
                     CC.symmetries.CustomASR(dyn_grad[0, :,:])
                 else:
                     # TODO FIX THE SIMPLE ASR with CAVITY
@@ -434,7 +435,10 @@ class SSCHA_Minimizer(object):
         if self.minim_struct:
             t1 = time.time()
             # Get the gradient of the free-energy respect to the structure
-            struct_grad, struct_grad_err =  self.ensemble.get_average_forces(True)
+            if not self.cavity:
+                struct_grad, struct_grad_err =  self.ensemble.get_average_forces(True)
+            else:
+                struct_grad, struct_grad_err =  self.ensemble.get_average_forces(True, in_unit_cell = False)
             #print "SHAPE:", np.shape(struct_grad)
             struct_grad_reshaped = - struct_grad.reshape( (3 * self.dyn.structure.N_atoms))
             
@@ -448,11 +452,12 @@ class SSCHA_Minimizer(object):
                 struct_precond = GetStructPrecond(self.ensemble.current_dyn, ignore_small_w = self.ensemble.ignore_small_w, w_pols = w_pols)
                 struct_grad_precond = struct_precond.dot(struct_grad_reshaped)
                 struct_grad = struct_grad_precond.reshape( (self.dyn.structure.N_atoms, 3))
+            else:
+                # THIS CHANGE SIGN TO THE GRADIENT OTHERWISE THE MINIMIZATION GOES NUTS
+                struct_grad = struct_grad_reshaped.copy()
             t2 = time.time()
             
-
             print ("Time elapsed to compute the structure gradient:", t2 - t1, "s")
-
 
             # Apply the symmetries to the forces
             if not self.neglect_symmetries:
@@ -512,7 +517,7 @@ Error, the custom_function_gradient must have either 2 or 3 arguments:
             if not self.cavity:
                 self.__gw_err__.append(np.sqrt( np.einsum("ij, ij", struct_grad_err, struct_grad_err) / qe_sym.QE_nsymq))
             else:
-                # TODO FIX THE ERROR FOR THE CAVITY
+                # TODO FIX THE SYMM FOR THE CAVITY
                 self.__gw_err__.append(np.sqrt( np.einsum("ij, ij", struct_grad_err, struct_grad_err)))
         else:
             self.__gw__.append(0)
