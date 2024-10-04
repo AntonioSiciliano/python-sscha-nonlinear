@@ -82,21 +82,19 @@ build/temp.linux-x86_64-3.10/build/src.linux-x86_64-3.10/build/src.linux-x86_64-
  /usr/include/python3.10/cpython/fileutils.h \
  /usr/include/python3.10/cpython/pyfpe.h \
  /usr/include/python3.10/tracemalloc.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/arrayobject.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/ndarrayobject.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/ndarraytypes.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/npy_common.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/numpyconfig.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/_numpyconfig.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/npy_endian.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/npy_cpu.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/utils.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/_neighborhood_iterator_imp.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/old_defines.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/__multiarray_api.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/npy_interrupt.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/npy_3kcompat.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/npy_common.h \
- /usr/local/lib/python3.10/dist-packages/numpy/core/include/numpy/ndarrayobject.h
-commandline: -Ibuild/src.linux-x86_64-3.10/build/src.linux-x86_64-3.10 -I/usr/local/lib/python3.10/dist-packages/numpy/core/include -Ibuild/src.linux-x86_64-3.10/numpy/distutils/include -I/usr/include/python3.10 -c-msse -msse2 -msse3-Ibuild/src.linux-x86_64-3.10/build/src.linux-x86_64-3.10 -I/usr/local/lib/python3.10/dist-packages/numpy/core/include -Ibuild/src.linux-x86_64-3.10/numpy/distutils/include -I/usr/include/python3.10
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/arrayobject.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/ndarrayobject.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/ndarraytypes.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/npy_common.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/numpyconfig.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/_numpyconfig.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/npy_endian.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/npy_cpu.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/utils.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/_neighborhood_iterator_imp.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/dtype_api.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/__multiarray_api.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/_public_dtype_api_table.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/npy_2_compat.h \
+ /home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include/numpy/npy_3kcompat.h
+commandline: -Ibuild/src.linux-x86_64-3.10/build/src.linux-x86_64-3.10 -I/home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include -Ibuild/src.linux-x86_64-3.10/numpy/distutils/include -I/home/antonio/env_nonlinear_scha/include -I/usr/include/python3.10 -c-msse -msse2 -msse3-Ibuild/src.linux-x86_64-3.10/build/src.linux-x86_64-3.10 -I/home/antonio/env_nonlinear_scha/lib/python3.10/site-packages/numpy/_core/include -Ibuild/src.linux-x86_64-3.10/numpy/distutils/include -I/home/antonio/env_nonlinear_scha/include -I/usr/include/python3.10

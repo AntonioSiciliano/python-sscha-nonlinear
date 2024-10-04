@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/home/antonio/env_nonlinear_scha/bin/python3
 
 import numpy as np
 import matplotlib.pyplot as plt
