@@ -1135,8 +1135,6 @@ Error, the following stress files are missing from the ensemble:
             structs = self.dyn_0.ExtractRandomStructures(N // 2, self.T0, project_on_vectors = project_on_modes,\
                                                          lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
 
-
-
             for i, s in enumerate(structs):
                 structures.append(s)
                 new_s = s.copy()
