@@ -1,4 +1,4 @@
-#!/home/antonio/env_nonlinear_scha/bin/python3
+#!/usr/bin/python3
 from __future__ import print_function
 
 import sys, os
