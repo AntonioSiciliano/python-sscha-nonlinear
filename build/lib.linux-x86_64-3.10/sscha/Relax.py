@@ -564,6 +564,7 @@ Error, the specified location to save the ensemble:
 
             # Generate the ensemble
             self.minim.ensemble.dyn_0 = self.minim.dyn.Copy()
+            
             if pop != start_pop or not restart_from_ens:
                 self.minim.ensemble.generate(self.N_configs, sobol=sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)
 

@@ -28,7 +28,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import cellconstructor as CC
 import cellconstructor.Structure
 import cellconstructor.Phonons
-import cellconstructor.Units
 import cellconstructor.Methods
 import cellconstructor.Manipulate
 import cellconstructor.Settings
@@ -129,6 +128,7 @@ class Ensemble:
                 The supercell dimension. If not provided, it will be determined by dyn0
             **kwargs : any other attribute of the ensemble
         """
+
         # N is the number of element in the ensemble
         self.N = 0
         self.structures = []
@@ -137,10 +137,10 @@ class Ensemble:
         self.stresses = []
         self.xats = []
         self.units = UNITS_DEFAULT
-        # self.w_0 = None
-        # self.pols_0 = None
-        # self.current_w = None
-        # self.current_pols = None
+        self.w_0 = None
+        self.pols_0 = None
+        self.current_w = None
+        self.current_pols = None
 
         self.sscha_energies = []
         self.sscha_forces = []
@@ -194,16 +194,15 @@ class Ensemble:
         # Get the extra quantities
         self.all_properties = []
 
-#         # COMMENTED TO BE COMPATIBLE WITH NONLINEAR SCHA
-#         # Setup the attribute control
-#         self.__total_attributes__ = [item for item in self.__dict__.keys()]
-#         # This must be the last attribute to be setted
-#         self.fixed_attributes = True 
+
+        # Setup the attribute control
+        self.__total_attributes__ = [item for item in self.__dict__.keys()]
+        self.fixed_attributes = True # This must be the last attribute to be setted
 
 
-#         # Setup any other keyword given in input (raising the error if not already defined)
-#         for key in kwargs:
-#             self.__setattr__(key, kwargs[key])
+        # Setup any other keyword given in input (raising the error if not already defined)
+        for key in kwargs:
+            self.__setattr__(key, kwargs[key])
 
 
     def __setattr__(self, name, value):
@@ -791,7 +790,7 @@ Error, the following stress files are missing from the ensemble:
                 print('NOOO WHAT IS HAPPENING')
                 print(self.all_properties)
 
-    def save_extxyz(self, filename, append_mode = True):
+    def save_extxyz(self, filename, append_mode = True, minus_sign_stress = False):
         """
         SAVE INTO EXTXYZ FORMAT
         =======================
@@ -804,6 +803,8 @@ Error, the following stress files are missing from the ensemble:
                 The path to the .extxyz file containing the ensemble
             append_mode: bool
                 If true the ensemble is appended
+            minus_sign_stress: bool
+                If true, the stress is saved in the ase format which has a minus sign
         """
 
         if not __ASE__:
@@ -816,6 +817,8 @@ Error, the following stress files are missing from the ensemble:
             energy = self.energies[i] * Rydberg  # Ry -> eV
             forces = self.forces[i, :, :] * Rydberg  # Ry/A -> eV/A
             stress = self.stresses[i, :, :] * Rydberg /  Bohr**3 # Ry/Bohr^3 -> eV/A^3
+            if minus_sign_stress:
+                stress *= -1.
             struct = s.get_ase_atoms()
 
             calculator = ase.calculators.singlepoint.SinglePointCalculator(struct, energy = energy,
@@ -1034,7 +1037,7 @@ Error, the following stress files are missing from the ensemble:
                     warnings.warn("WARNING: found file {} but not able to load the properties keyword.".format(all_prop_fname))
 
 
-    def init_from_structures(self, structures, auxiliary_disps = None):
+    def init_from_structures(self, structures):
         """
         Initialize the ensemble from the given list of structures
 
@@ -1045,13 +1048,9 @@ Error, the following stress files are missing from the ensemble:
         """
 
         # Perform the standard initialization
+
         self.N = len(structures)
         Nat_sc = np.prod(self.supercell) * self.dyn_0.structure.N_atoms
-        
-        # Check the shape of the auxiliary displacemenets
-        if not(auxiliary_disps is None):
-            if auxiliary_disps.shape != (self.N, 3 * Nat_sc):
-                raise ValueError('The auxiliary displacements have not the correct shape {}'.format((self.N, 3 * Nat_sc)))
 
         self.structures = [x for x in structures]
 
@@ -1071,15 +1070,11 @@ Error, the following stress files are missing from the ensemble:
         # Here it is useless to generate the supercell dynamical matrix,
         # it should be replaced by generating the unit cell structure,
         # But then the get_energy_forces method should provide the correct implementation.
-        if auxiliary_disps is None:
-            print('Init from structs without auxiliary displacements')
-            new_super_dyn = self.current_dyn.GenerateSupercellDyn(self.current_dyn.GetSupercell())
-            self.u_disps[:,:] = np.reshape(self.xats - np.tile(new_super_dyn.structure.coords, (self.N, 1,1)), (self.N, 3 * Nat_sc), order = "C")
-        else:
-            print('Init from structs with auxiliary displacements')
-            self.u_disps[:,:] = auxiliary_disps[:,:]
+        new_super_dyn = self.current_dyn.GenerateSupercellDyn(self.current_dyn.GetSupercell())
+        self.u_disps[:,:] = np.reshape(self.xats - np.tile(new_super_dyn.structure.coords, (self.N, 1,1)), (self.N, 3 * Nat_sc), order = "C")
 
         self.sscha_energies[:], self.sscha_forces[:,:,:] = self.dyn_0.get_energy_forces(None, displacement = self.u_disps)
+
 
         self.rho = np.ones(self.N, dtype = np.float64)
         self.current_dyn = self.dyn_0.Copy()
@@ -1091,10 +1086,9 @@ Error, the following stress files are missing from the ensemble:
 
         # Setup the all properties
         self.all_properties = [{}] * self.N
-        
 
 
-    def generate(self, N, evenodd = False, project_on_modes = None, sobol = False, sobol_scramble = False, sobol_scatter = 0.0):
+    def generate(self, N, evenodd = True, project_on_modes = None, sobol = False, sobol_scramble = False, sobol_scatter = 0.0):
         """
         GENERATE THE ENSEMBLE
         =====================
@@ -1120,7 +1114,7 @@ Error, the following stress files are missing from the ensemble:
                 Set the scatter parameter to displace the Sobol positions randommly.
 
         """
-        evenodd = False
+
         if evenodd and (N % 2 != 0):
             raise ValueError("Error, evenodd allowed only with an even number of random structures")
 
@@ -1132,8 +1126,9 @@ Error, the following stress files are missing from the ensemble:
 
         structures = []
         if evenodd:
-            structs = self.dyn_0.ExtractRandomStructures(N // 2, self.T0, project_on_vectors = project_on_modes,\
-                                                         lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
+            structs = self.dyn_0.ExtractRandomStructures(N // 2, self.T0, project_on_vectors = project_on_modes, lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
+
+
 
             for i, s in enumerate(structs):
                 structures.append(s)
@@ -1142,8 +1137,7 @@ Error, the following stress files are missing from the ensemble:
                 new_s.coords = super_struct.coords - new_s.get_displacement(super_struct)
                 structures.append(new_s)
         else:
-            structures = self.dyn_0.ExtractRandomStructures(N, self.T0, project_on_vectors = project_on_modes,\
-                                                            lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
+            structures = self.dyn_0.ExtractRandomStructures(N, self.T0, project_on_vectors = project_on_modes, lock_low_w = self.ignore_small_w, sobol = sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)  # normal Sobol generator****Diegom_test****
 
 
         # Enforce all the processors to share the same structures
@@ -1717,10 +1711,8 @@ DETAILS OF ERROR:
             float
                 The free energy in the current dynamical matrix and at the ensemble temperature
         """
-        # Get the HARMONIC free energy
-        free_energy = 0.
-        # free_energy = self.current_dyn.GetHarmonicFreeEnergy(self.current_T, w_pols = (self.current_w, self.current_pols))
-        free_energy = self.current_dyn.GetHarmonicFreeEnergy(self.current_T, w_pols = None)
+
+        free_energy = self.current_dyn.GetHarmonicFreeEnergy(self.current_T, w_pols = (self.current_w, self.current_pols))
 
         # We got the F_0
         # Now we can compute the free energy difference
@@ -1731,8 +1723,8 @@ DETAILS OF ERROR:
         else:
             anharmonic_free_energy = self.get_average_energy(subtract_sscha = True, return_error = False)
 
-        print("Non-linear-sscha F_0 (meV) {}".format(free_energy * CC.Units.RY_TO_EV * 1000))
-        print("Non-linear-sscha <V-V_scha> (meV) {}".format(anharmonic_free_energy * CC.Units.RY_TO_EV * 1000))
+        #print "Free energy harmonic:", free_energy
+        #print "Free energy anharmonic:", anharmonic_free_energy
         free_energy += anharmonic_free_energy
 
         if return_error:
@@ -3020,46 +3012,43 @@ DETAILS OF ERROR:
                 If None the calculation is performed on the same computer of
                 the sscha code.
         """
+
+
         # Check if the calculator is a cluster
         is_cluster = False
         if not cluster is None:
             is_cluster = True
-        
+
         # Check consistency
         if stress_numerical and is_cluster:
             raise ValueError("Error, stress_numerical is not implemented with clusters")
-        
+
         # Check if not all the calculation needs to be done
         n_calcs = np.sum( self.force_computed.astype(int))
         computing_ensemble = self
 
         if compute_stress:
             self.has_stress = True
-        
+
         # Check wheter compute the whole ensemble, or just a small part
         should_i_merge = False
-        print('\nCompute ensemble')
-        print('{} calculations done out of {}'.format(n_calcs, self.N))
         if n_calcs != self.N:
             should_i_merge = True
-            # Get the part of the ensemble that we did not compute
             computing_ensemble = self.get_noncomputed()
-            # Remove the part of the ensemble that we did not compute
             self.remove_noncomputed()
-        
+
         if is_cluster:
             print("BEFORE COMPUTING:", self.all_properties)
             cluster.compute_ensemble(computing_ensemble, calculator, compute_stress)
+
         else:
             computing_ensemble.get_energy_forces(calculator, compute_stress, stress_numerical, verbose = verbose)
-        
+
         if should_i_merge:
-            print('Merging the computed ensemble with the current one')
             # Remove the noncomputed ensemble from here, and merge
             self.merge(computing_ensemble)
-        
+
         print('ENSEMBLE ALL PROPERTIES:', self.all_properties)
-        print('\nEnd compute ensemble')
 
     def merge(self, other):
         """
@@ -3094,11 +3083,10 @@ DETAILS OF ERROR:
         self.rho = np.concatenate( (self.rho, other.rho))
 
         # Now update everything
-        # print('merge function update_wieghts commented')
-        # self.update_weights(self.current_dyn, self.current_T)
+        self.update_weights(self.current_dyn, self.current_T)
 
 
-    def split(self, split_mask, u_disps = None):
+    def split(self, split_mask):
         """
         SPLIT THE ENSEMBLE
         ==================
@@ -3118,21 +3106,12 @@ DETAILS OF ERROR:
             splitted_ensemble : Ensemble()
                 An ensemble tath will contain only the configurations in the split mask.
         """
-        # Get the supercell structures which are used to initialize the ensemble
+
         structs = [self.structures[x] for x in np.arange(len(split_mask))[split_mask]]
-        # Size of the new ensemble
+
         N = np.sum(split_mask.astype(int))
-        # Create the ensemble
         ens = Ensemble(self.dyn_0, self.T0, self.dyn_0.GetSupercell())
-        
-        # If the u_disps are passed then we use the nonlinearscha version
-        if u_disps is None:
-            ens.init_from_structures(structs)
-        else:
-            ens.init_from_structures(structs, auxiliary_disps = u_disps[split_mask,:])
-            
-        
-        # Get the other attributes of the ensemble
+        ens.init_from_structures(structs)
         ens.force_computed[:] = self.force_computed[split_mask]
         ens.stress_computed[:] = self.stress_computed[split_mask]
         ens.energies[:] = self.energies[split_mask]
@@ -3141,13 +3120,9 @@ DETAILS OF ERROR:
         ens.ignore_small_w = self.ignore_small_w
         if self.has_stress:
             ens.stresses[:, :, :] = self.stresses[split_mask, :, :]
-        
-        # If u_disps are passed we just copy the weights of the self object
-        if u_disps is None:
-            ens.update_weights(self.current_dyn, self.current_T)
-        else:
-            ens.rho[:] = self.rho[split_mask]
-            
+
+        ens.update_weights(self.current_dyn, self.current_T)
+
         ens.all_properties = [self.all_properties[x] for x in np.arange(len(split_mask))[split_mask]]
 
         return ens
@@ -3175,25 +3150,23 @@ DETAILS OF ERROR:
         self.structures = [self.structures[x] for x in np.arange(len(good_mask))[good_mask]]
         self.all_properties = [self.all_properties[x] for x in np.arange(len(good_mask))[good_mask]]
 
+
         self.rho = self.rho[good_mask]
 
         # Check everything and update the weights
-        # print('->remove_noncumputed function update_weights commented')
-        # self.update_weights(self.current_dyn, self.current_T)
+        self.update_weights(self.current_dyn, self.current_T)
 
     def get_noncomputed(self):
         """
         Get another ensemble with only the non computed configurations.
-        This may be used to resubmit only the non computed values.
-        
-        Note: this function has been modified to use it in nonlinearscha
-        as the u_disps are taken directly from the ensemble and not recomputed as in the standard scha
+        This may be used to resubmit only the non computed values
         """
+
         non_mask = ~self.force_computed
         if self.has_stress:
             non_mask = non_mask & (~self.stress_computed)
 
-        return self.split(non_mask, u_disps = self.u_disps)
+        return self.split(non_mask)
 
     def get_energy_forces(self, ase_calculator, compute_stress = True, stress_numerical = False, skip_computed = False, verbose = False):
         """
@@ -3237,6 +3210,7 @@ DETAILS OF ERROR:
                 nat3 = comm.bcast(self.current_dyn.structure.N_atoms* 3* np.prod(self.supercell), root = 0)
                 N_rand = comm.bcast(self.N, root=0)
 
+
                 #if not Parallel.am_i_the_master():
                 #    self.structures = structures
                 #    self.init_from_structures(structures) # Enforce all the ensembles to have the same structures
@@ -3246,6 +3220,7 @@ DETAILS OF ERROR:
                 ase_calculator.set_label("esp_%d" % rank) # Avoid overwriting the same file
 
                 compute_stress = comm.bcast(compute_stress, root = 0)
+
 
                 # Check if the parallelization is correct
                 if N_rand % size != 0:
@@ -3262,6 +3237,7 @@ DETAILS OF ERROR:
 
         # Prepare the energy, forces and stress array
         # TODO: Correctly setup the number of energies here
+
 
         # If an MPI istance is running, split the calculation
         tot_configs = N_rand // size
@@ -3300,11 +3276,13 @@ DETAILS OF ERROR:
                     else:
                         continue
 
+
             struct = structures[i]
             #atms = struct.get_ase_atoms()
 
             # Setup the ASE calculator
             #atms.set_calculator(ase_calculator)
+
 
             # Print the status
             if Parallel.am_i_the_master() and verbose:
@@ -3318,7 +3296,7 @@ DETAILS OF ERROR:
                 try:
                     results = CC.calculators.get_results(ase_calculator, struct, get_stress = compute_stress)
                     energy = results["energy"] / Rydberg # eV => Ry
-                    forces_ = results["forces"] / Rydberg # eV/Angstrom => Ry/Angstrom
+                    forces_ = results["forces"] / Rydberg
 
                     if compute_stress:
                         stress[9*i0 : 9*i0 + 9] = -results["stress"].reshape(9)* Bohr**3 / Rydberg
@@ -3348,6 +3326,9 @@ DETAILS OF ERROR:
 
 
             i0 += 1
+
+
+
 
 
         # Collect all togheter
