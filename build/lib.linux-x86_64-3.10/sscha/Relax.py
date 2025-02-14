@@ -353,30 +353,33 @@ Error, the specified location to save the ensemble:
                 self.minim.ensemble.compute_ensemble(self.calc, get_stress,
                                                  cluster = self.cluster)
                 #self.minim.ensemble.get_energy_forces(self.calc, get_stress)
-
                 if ensemble_loc is not None and self.save_ensemble:
                     self.minim.ensemble.save_bin(ensemble_loc, pop)
-
+                  
             self.minim.population = pop
             self.minim.init(delete_previous_data = False)
-
+            
             self.minim.run(custom_function_pre = self.__cfpre__,
                            custom_function_post = self.__cfpost__,
                            custom_function_gradient = self.__cfg__)
 
 
             self.minim.finalize()
+            
+            if not self.minim.cavity:
+                # Perform the symmetrization
+                print ("Checking the symmetries of the dynamical matrix:")
+                qe_sym = CC.symmetries.QE_Symmetry(self.minim.dyn.structure)
+                qe_sym.SetupQPoint(verbose = True)
 
-            # Perform the symmetrization
-            print ("Checking the symmetries of the dynamical matrix:")
-            qe_sym = CC.symmetries.QE_Symmetry(self.minim.dyn.structure)
-            qe_sym.SetupQPoint(verbose = True)
-
-            print ("Forcing the symmetries in the dynamical matrix.")
-            fcq = np.array(self.minim.dyn.dynmats, dtype = np.complex128)
-            qe_sym.SymmetrizeFCQ(fcq, self.minim.dyn.q_stars, asr = "custom")
-            for iq,q in enumerate(self.minim.dyn.q_tot):
-                self.minim.dyn.dynmats[iq] = fcq[iq, :, :]
+                print ("Forcing the symmetries in the dynamical matrix.")
+                fcq = np.array(self.minim.dyn.dynmats, dtype = np.complex128)
+                qe_sym.SymmetrizeFCQ(fcq, self.minim.dyn.q_stars, asr = "custom")
+                for iq,q in enumerate(self.minim.dyn.q_tot):
+                    self.minim.dyn.dynmats[iq] = fcq[iq, :, :]
+            else:
+                # TODO understand what happens in the cavity
+                pass
 
             # Save the dynamical matrix
             if self.save_ensemble:
@@ -564,7 +567,6 @@ Error, the specified location to save the ensemble:
 
             # Generate the ensemble
             self.minim.ensemble.dyn_0 = self.minim.dyn.Copy()
-            
             if pop != start_pop or not restart_from_ens:
                 self.minim.ensemble.generate(self.N_configs, sobol=sobol, sobol_scramble = sobol_scramble, sobol_scatter = sobol_scatter)
 
